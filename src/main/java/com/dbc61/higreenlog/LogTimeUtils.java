@@ -1,6 +1,7 @@
-package com.dbc61.higreenlog.utils;
+package com.dbc61.higreenlog;
 
 import android.annotation.SuppressLint;
+import android.util.Log;
 
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
@@ -8,6 +9,7 @@ import androidx.annotation.NonNull;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -31,8 +33,30 @@ public final class LogTimeUtils {
     /**
      * 默认时间格式
      */
-    private static SimpleDateFormat getDefaultFormat() {
+    public static SimpleDateFormat getDefaultFormat() {
         return getSafeDateFormat("yyyy-MM-dd HH:mm:ss");
+    }
+
+    /**
+     * 日期格式 - 仅年月日
+     */
+    public static SimpleDateFormat getDateFormat() {
+        return getSafeDateFormat("yyyyMMdd");
+    }
+
+    /**
+     * 日期格式 - 仅年月日
+     */
+    public static SimpleDateFormat getDateHourMinFormat() {
+        return getSafeDateFormat("yyyyMMddHHmm");
+    }
+
+
+    /**
+     * 时间格式 - 毫秒时间格式
+     */
+    public static SimpleDateFormat getMillisecondFormat() {
+        return getSafeDateFormat("yyyy-MM-dd HH:mm:ss:SSS");
     }
 
     private static final ThreadLocal<Map<String, SimpleDateFormat>> SDF_THREAD_LOCAL
@@ -67,6 +91,32 @@ public final class LogTimeUtils {
      */
     public static String getNowString() {
         return millis2String(System.currentTimeMillis(), getDefaultFormat());
+    }
+
+    /**
+     * 将字符串转为时间戳
+     */
+    public static long string2Millis(final String time) {
+        return string2Millis(time, getDefaultFormat());
+    }
+
+    /**
+     * 将字符串转为时间戳
+     */
+    public static long string2Millis(final String time, @NonNull final String pattern) {
+        return string2Millis(time, getSafeDateFormat(pattern));
+    }
+
+    /**
+     * 将字符串转为时间戳
+     */
+    public static long string2Millis(final String time, @NonNull final DateFormat format) {
+        try {
+            return format.parse(time).getTime();
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return -1;
     }
 
     /**
@@ -122,6 +172,24 @@ public final class LogTimeUtils {
         cal.set(Calendar.MILLISECOND, 0);
         return cal.getTimeInMillis();
     }
+
+    /**
+     * 获取当前时间的前时间
+     */
+    public static long getWholeTime(){
+        Calendar cal = Calendar.getInstance();
+        long nowTime = cal.getTimeInMillis();
+
+        cal.set(Calendar.SECOND, 0);
+        cal.set(Calendar.MINUTE, 0);
+        cal.set(Calendar.MILLISECOND, 0);
+
+        //计算当前小时已经过了多少时间
+        long timeDifference = nowTime - cal.getTimeInMillis();
+
+        return (nowTime - ( timeDifference  % (10 * 60 * 1000) ) );
+    }
+
 
     /**
      * 判断是否是今天

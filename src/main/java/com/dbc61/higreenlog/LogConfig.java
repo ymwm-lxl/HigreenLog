@@ -1,4 +1,4 @@
-package com.dbc61.higreenlog.config;
+package com.dbc61.higreenlog;
 
 /**
  * Description：日志配置文件
@@ -7,26 +7,31 @@ package com.dbc61.higreenlog.config;
  */
 public class LogConfig {
 
-    /* 日志等级 */
-    private LogLevelEnum Loglevel = LogLevelEnum.HIGHT;
+    /** 日志等级 */
+    private LogLevelEnum Loglevel = LogLevelEnum.HIGH;
 
-    /* 是否打印 */
+    /** 是否打印 */
     private boolean LogIsPrint = true;
 
-    /* 是否 debug？ debug模式不存储 */
+    /** 是否 debug？ debug模式不存储 */
     private boolean isDebug = false;
 
-    /* 最大内存 默认 10 M*/
+    /** 最大内存 默认 10 M*/
     private long LogFileMaxSize = 10 * 1000 * 1000;
 
-    /* 存储地址 (仅允许设置一次)*/
-    private String LogFilePath;
+    /** 存储地址 (仅允许设置一次)*/
+    private String mLogFilePath;
 
-    /* 单例 */
+    /** app标识，用于日志文件名 */
+    private String mAppNameTag;
+
+    /** 日志tag (可能为空) */
+    private String mLogTag;
+
+    /** 单例 */
     private static LogConfig mInstance;
 
-    private LogConfig() {
-    }
+    private LogConfig() {}
 
     public static LogConfig getInstance(){
         if (mInstance == null) {
@@ -76,20 +81,49 @@ public class LogConfig {
     }
 
     public String getLogFilePath() {
-        return LogFilePath;
+        return mLogFilePath;
     }
 
 
-    public void setLogFilePath(String logFilePath) {
+    public LogConfig setLogFilePath(String logFilePath) {
         //文件目录，仅允许设置一次
-        if (LogFilePath == null){
+        if (mLogFilePath == null){
             //防止传空值进来，如果空值，强行赋值空
             if (logFilePath == null){
-                LogFilePath = "";
-                return;
+                mLogFilePath = "";
+                return this;
             }
-            LogFilePath = logFilePath;
+            mLogFilePath = logFilePath;
+            return this;
+        }else {
+            throw new RuntimeException("禁止多次设置日志path");
+        }
+    }
+
+    public String getAppNameTag() {
+        return mAppNameTag;
+    }
+
+    public LogConfig setAppNameTag(String appNameTag) {
+        mAppNameTag = appNameTag;
+        return this;
+    }
+
+    /**
+     * 获取日志tag
+     * @return tag字符
+     */
+    public String getLogTag() {
+        //如果没有设置，则使用 * 占位
+        if (EmptyUtils.isEmpty(mLogTag)) return "***";
+        return mLogTag;
+    }
+
+    public void setLogTag(String userName) {
+        synchronized (LogConfig.class){
+            mLogTag = userName;
         }
 
     }
+
 }

@@ -1,4 +1,4 @@
-package com.dbc61.higreenlog.config;
+package com.dbc61.higreenlog;
 
 /**
  * Description：
@@ -11,4 +11,11 @@ public enum LogLevelEnum {
     HIGH,
     /* 消极 */
     LOW,
+
+    DEBUG,
+    INFO,
+    WARN,
+    ERROR
+
 }
+
